@@ -1,0 +1,20 @@
+{
+  "independent_training_runs": 2,
+  "identical_metadata": true,
+  "identical_artifact_sha256": true,
+  "artifact_sha256": "2f87b786d1cf0d111baed690052822c0a8dd2ea4b4ef1bf39e58f6d98b0cd842",
+  "seed": 42,
+  "target": "int(popularity > 50)",
+  "features": [
+    "artist",
+    "duration_ms",
+    "danceability",
+    "loudness",
+    "key",
+    "genre",
+    "energy",
+    "tempo"
+  ],
+  "decision_threshold": 0.475,
+  "candidate_count": 22
+}

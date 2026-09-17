@@ -1,0 +1,224 @@
+{
+  "executed_at_utc": "2026-09-17T23:39:34.651857+00:00",
+  "base_url": "http://127.0.0.1:53128",
+  "passed": 19,
+  "results": [
+    {
+      "case": "popularity_boundary_50_false_51_true",
+      "passed": true
+    },
+    {
+      "case": "serialized_decision_threshold",
+      "passed": true,
+      "threshold": 0.475
+    },
+    {
+      "case": "combined_genres_order_case_and_individual_indicators",
+      "passed": true
+    },
+    {
+      "case": "health",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "model_loaded": true
+      }
+    },
+    {
+      "case": "prediction_matches_serialized_pipeline",
+      "status": 200,
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "response": {
+        "EsExito": true,
+        "ProbabilidadExito": 1.0
+      }
+    },
+    {
+      "case": "unknown_categories",
+      "status": 200,
+      "response": {
+        "EsExito": true,
+        "ProbabilidadExito": 0.97
+      }
+    },
+    {
+      "case": "invalid_input_1",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": -1,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_2",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 12,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_3",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 1.5,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_4",
+      "request": {
+        "artist": "  ",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_5",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053,
+        "popularity": 99
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_6",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_7",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 1.01,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_8",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": -0.1,
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_9",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 0
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_10",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": -100
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_11",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "tempo": 95.053
+      },
+      "status": 422
+    },
+    {
+      "case": "invalid_input_12",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834
+      },
+      "status": 422
+    },
+    {
+      "case": "openapi_schema",
+      "status": 200
+    }
+  ]
+}
