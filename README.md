@@ -1,5 +1,11 @@
 # Clasificación de éxito de canciones
 
+**Servicio público HTTPS:** [canciones-api en Google Cloud Run](https://canciones-api-412738758691.southamerica-west1.run.app).
+
+**Probar la API:** [Swagger UI /docs](https://canciones-api-412738758691.southamerica-west1.run.app/docs) · **Estado:** [/health](https://canciones-api-412738758691.southamerica-west1.run.app/health).
+
+Verificación externa del 17 de septiembre de 2026, 21:19 (Chile; 18 de septiembre, 00:19 UTC): `/health`, `/docs`, `/openapi.json` y `POST /prediccion/` respondieron **HTTP 200 sin autenticación**. Respuestas registradas en [docs/cloud_test_results.json](docs/cloud_test_results.json). La raíz `/` no tiene endpoint y puede responder 404; usar los enlaces anteriores.
+
 Predice `EsExito = (popularity > 50)` con scikit-learn y sirve inferencias mediante FastAPI. Popularidad igual a 50 pertenece a la clase 0. La API recibe ocho variables; nunca recibe `popularity`.
 
 ## Archivos
@@ -29,7 +35,7 @@ Hay 2.000 filas originales y 1.941 después de eliminar 59 duplicados exactos. C
 
 ## Instalación y ejecución
 
-Usar Python **3.12.14** y las versiones fijadas para cargar el PKL, especialmente scikit-learn **1.5.2**.
+El entrenamiento local se realizó con Python **3.12.14**. Usar las versiones fijadas para cargar el PKL, especialmente scikit-learn **1.5.2**. En Cloud Run se selecciona la imagen `python312` (Python 3.12, parche administrado por el proveedor); no se afirma que su parche coincida con el entorno local.
 
 ```powershell
 python -m venv .venv
@@ -114,16 +120,119 @@ El rendimiento discriminativo sigue siendo limitado. El dataset ya contiene canc
 
 La prueba inicia Uvicorn en un puerto libre de localhost y lo detiene al finalizar. Se verificaron 19 casos: límite de popularidad 50/51, umbral serializado, separación de géneros, salud, predicción idéntica al PKL, categorías nuevas, doce entradas inválidas y esquema OpenAPI. Evidencias: `docs/local_test_results.json` y `docs/server.log`. El entrenamiento comprueba paridad de probabilidades y etiquetas después de serializar. Se verificó también la carga del PKL en un proceso aislado, sin importar módulos del proyecto. `docs/reproducibility.json` registra la comparación con un segundo entrenamiento independiente.
 
-## Cloud y GitHub
+## Despliegue en la nube: bonificación
 
-El modelo ocupa 1.330.647 bytes (aproximadamente 1,33 MB), menos de 100 MB. Solo usa componentes estándar de scikit-learn y rutas relativas al código, sin clases de serialización propias ni rutas de Windows en la inferencia. Instalar `requirements.txt`, usar la versión de Python indicada y ejecutar el `Procfile`:
+Proveedor: **Google Cloud Run**, servicio `canciones-api`, proyecto `final-project-cc-2026`, región `southamerica-west1` (Santiago). Se despliega desde el código mediante Cloud Build y Buildpacks, que construyen el contenedor y lo almacenan en Artifact Registry. No se necesita un Dockerfile propio con este procedimiento. El servicio carga `model/model.pkl` al iniciar y no entrena ni necesita el CSV.
 
-```sh
-uvicorn app.main:app --host 0.0.0.0 --port $PORT
+El modelo ocupa 1.330.647 bytes (aproximadamente 1,33 MB), menos de 100 MB. Usa componentes estándar de scikit-learn y rutas relativas al código. Cloud Run se configuró con 1 CPU, 1 GiB de memoria, concurrencia 8, mínimo 0 y máximo 1 instancia, puerto 8080 y acceso público sin autenticación. El proyecto requiere facturación habilitada; estos límites no constituyen un presupuesto máximo de gasto.
+
+### Pasos de configuración
+
+1. Crear o seleccionar un proyecto de Google Cloud, habilitar facturación y abrir Cloud Shell. La cuenta que despliega debe tener permisos de Cloud Run, habilitación de APIs y uso de la cuenta de servicio.
+2. Configurar el proyecto y habilitar APIs. Los comandos siguientes son para **Bash en Cloud Shell**. Un evaluador que quiera crear su propio servicio debe reemplazar el ID de proyecto por el suyo.
+
+```bash
+export PROJECT_ID="final-project-cc-2026"
+export REGION="southamerica-west1"
+gcloud config set project "$PROJECT_ID"
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+
+export PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+export BUILD_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${BUILD_SA}" \
+  --role="roles/run.builder"
 ```
 
-La plataforma debe proporcionar `PORT`. Si no interpreta `runtime.txt` o `Procfile`, configurar manualmente esos valores en su interfaz. Se verificó la ejecución local en Windows; aún no se realizó despliegue ni prueba en un proveedor cloud.
+3. Clonar el repositorio, que incluye el pipeline entrenado y las dependencias fijadas.
 
-Repositorio indicado: [lolS7/Tarea_CC_SotoAlvarado](https://github.com/lolS7/Tarea_CC_SotoAlvarado). Los commits y el push se realizarán manualmente por el usuario; no se efectuaron operaciones de publicación ni commits.
+```bash
+git clone https://github.com/lolS7/Tarea_CC_SotoAlvarado.git
+cd Tarea_CC_SotoAlvarado
+ls app/main.py model/model.pkl model/metadata.json requirements.txt
+```
 
-Subir código, `model/model.pkl`, metadatos y evidencias. `.gitignore` excluye el entorno y CSV. **E8 pendiente de la acción manual del equipo:** registrar y publicar sus commits reales. E1–E7 cuentan con los archivos y evidencia local indicados arriba.
+4. Construir y publicar el servicio usando explícitamente la imagen compatible con Python 3.12.
+
+```bash
+gcloud run deploy canciones-api \
+  --source . \
+  --project="$PROJECT_ID" \
+  --region="$REGION" \
+  --base-image=python312 \
+  --no-automatic-updates \
+  --build-service-account="projects/${PROJECT_ID}/serviceAccounts/${BUILD_SA}" \
+  --set-build-env-vars="GOOGLE_ENTRYPOINT=uvicorn app.main:app --host 0.0.0.0 --port 8080" \
+  --port 8080 \
+  --memory 1Gi \
+  --cpu 1 \
+  --concurrency 8 \
+  --min-instances 0 \
+  --max-instances 1 \
+  --allow-unauthenticated
+```
+
+5. Abrir la URL devuelta seguida de `/docs` y comprobar `/health` y una predicción con los comandos de la sección siguiente. Para actualizar el servicio después de un cambio, ejecutar `git pull` y repetir el despliegue; no se configuró despliegue automático desde GitHub.
+
+### Variables de entorno utilizadas
+
+| Variable | Ámbito | Valor y función |
+| --- | --- | --- |
+| `PROJECT_ID` | Terminal Cloud Shell | Proyecto donde se crea el servicio |
+| `REGION` | Terminal Cloud Shell | `southamerica-west1` |
+| `PROJECT_NUMBER` | Terminal Cloud Shell | Número obtenido con `gcloud projects describe` |
+| `BUILD_SA` | Terminal Cloud Shell | Cuenta de servicio que construye la imagen |
+| `GOOGLE_ENTRYPOINT` | Construcción | `uvicorn app.main:app --host 0.0.0.0 --port 8080` |
+| `PORT` | Ejecución, provista por Cloud Run | `8080`, alineado con `--port` y el comando de Uvicorn |
+
+La aplicación no requiere claves, secretos ni otras variables propias. `GOOGLE_PYTHON_VERSION` se usó en los intentos fallidos y se eliminó en la configuración final. El runtime final se selecciona mediante `--base-image=python312`. `runtime.txt` documenta el intérprete local; la elección explícita de la imagen determina el entorno cloud.
+
+### Problema encontrado y solución
+
+Los primeros despliegues fallaron al instalar Python. Con `GOOGLE_PYTHON_VERSION=3.12.14` se recibió `MANIFEST_UNKNOWN`. Cambiarlo a `3.12.x` también falló: el registro mostró que el constructor automático `google-24` solo ofrecía versiones 3.13 y 3.14.
+
+**Solución aplicada:** seleccionar `--base-image=python312`, que corresponde al entorno `google-22` compatible con Python 3.12, y eliminar `GOOGLE_PYTHON_VERSION` de las variables de construcción. Se mantuvieron las dependencias de `requirements.txt`, incluido `scikit-learn==1.5.2`. El siguiente despliegue finalizó correctamente y la revisión quedó sirviendo el 100 % del tráfico.
+
+Referencias: [imágenes de ejecución compatibles](https://docs.cloud.google.com/run/docs/configuring/services/runtime-base-images) y [configuración del despliegue desde código](https://docs.cloud.google.com/sdk/gcloud/reference/run/deploy).
+
+### Llamadas curl públicas y respuestas
+
+Desde Bash, sin token ni credenciales:
+
+```bash
+curl -i 'https://canciones-api-412738758691.southamerica-west1.run.app/health'
+```
+
+Resultado verificado: **HTTP 200**, cuerpo:
+
+```json
+{"status":"ok","model_loaded":true}
+```
+
+Ejemplo de inferencia completo, sin depender de archivos locales:
+
+```bash
+curl -i -X POST 'https://canciones-api-412738758691.southamerica-west1.run.app/prediccion/' \
+  -H 'Content-Type: application/json' \
+  --data '{"artist":"Britney Spears","duration_ms":211160,"danceability":0.751,"loudness":-5.444,"key":1,"genre":"pop","energy":0.834,"tempo":95.053}'
+```
+
+Resultado verificado: **HTTP 200**, cuerpo:
+
+```json
+{"EsExito":true,"ProbabilidadExito":1.0}
+```
+
+Estos cuerpos se obtuvieron de solicitudes HTTP al servicio público. La fecha, los códigos de estado y el JSON enviado se conservan en [docs/cloud_test_results.json](docs/cloud_test_results.json). También se verificó que `/docs` entrega el HTML de Swagger UI y que `/openapi.json` documenta el endpoint de predicción. Para repetir la verificación y actualizar la evidencia desde la raíz del proyecto:
+
+```bash
+python tests/verify_cloud.py
+```
+
+La URL debe mantenerse activa y pública hasta la corrección. Verificar nuevamente los endpoints antes de entregar. La evidencia registra disponibilidad en un instante y no garantiza disponibilidad futura.
+
+## Repositorio y entrega
+
+Repositorio del proyecto: [lolS7/Tarea_CC_SotoAlvarado](https://github.com/lolS7/Tarea_CC_SotoAlvarado). El equipo publica sus commits manualmente. La revisión del historial de contribuciones corresponde al repositorio.
+
+Incluir código, `model/model.pkl`, metadatos y evidencias. `.gitignore` excluye el entorno y CSV. Para la bonificación, entregar el enlace al repositorio con este README actualizado y conservar disponible la URL HTTPS indicada al comienzo.

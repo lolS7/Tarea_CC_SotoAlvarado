@@ -1,0 +1,52 @@
+{
+  "checked_at_utc": "2026-09-18T00:19:15.053836+00:00",
+  "base_url": "https://canciones-api-412738758691.southamerica-west1.run.app",
+  "authentication": "none",
+  "passed": 4,
+  "checks": [
+    {
+      "method": "GET",
+      "url": "https://canciones-api-412738758691.southamerica-west1.run.app/health",
+      "status": 200,
+      "content_type": "application/json",
+      "response": {
+        "status": "ok",
+        "model_loaded": true
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://canciones-api-412738758691.southamerica-west1.run.app/docs",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "swagger_html_present": true
+    },
+    {
+      "method": "GET",
+      "url": "https://canciones-api-412738758691.southamerica-west1.run.app/openapi.json",
+      "status": 200,
+      "content_type": "application/json",
+      "prediction_endpoint_documented": true
+    },
+    {
+      "method": "POST",
+      "url": "https://canciones-api-412738758691.southamerica-west1.run.app/prediccion/",
+      "status": 200,
+      "content_type": "application/json",
+      "request": {
+        "artist": "Britney Spears",
+        "duration_ms": 211160,
+        "danceability": 0.751,
+        "loudness": -5.444,
+        "key": 1,
+        "genre": "pop",
+        "energy": 0.834,
+        "tempo": 95.053
+      },
+      "response": {
+        "EsExito": true,
+        "ProbabilidadExito": 1.0
+      }
+    }
+  ]
+}
