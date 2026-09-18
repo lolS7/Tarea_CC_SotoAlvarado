@@ -4,7 +4,7 @@
 
 **Probar la API:** [Swagger UI /docs](https://canciones-api-412738758691.southamerica-west1.run.app/docs) · **Estado:** [/health](https://canciones-api-412738758691.southamerica-west1.run.app/health).
 
-Verificación externa del 17 de septiembre de 2026, 21:19 (Chile; 18 de septiembre, 00:19 UTC): `/health`, `/docs`, `/openapi.json` y `POST /prediccion/` respondieron **HTTP 200 sin autenticación**. Respuestas registradas en [docs/cloud_test_results.json](docs/cloud_test_results.json). La raíz `/` no tiene endpoint y puede responder 404; usar los enlaces anteriores.
+Verificación externa: `/health`, `/docs`, `/openapi.json` y `POST /prediccion/` respondieron **HTTP 200 sin autenticación**. Respuestas registradas en [docs/cloud_test_results.json](docs/cloud_test_results.json). La raíz `/` no tiene endpoint y puede responder 404; usar los enlaces anteriores.
 
 Predice `EsExito = (popularity > 50)` con scikit-learn y sirve inferencias mediante FastAPI. Popularidad igual a 50 pertenece a la clase 0. La API recibe ocho variables; nunca recibe `popularity`.
 
