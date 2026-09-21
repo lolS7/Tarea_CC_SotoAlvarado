@@ -230,9 +230,3 @@ python tests/verify_cloud.py
 ```
 
 La URL debe mantenerse activa y pública hasta la corrección. Verificar nuevamente los endpoints antes de entregar. La evidencia registra disponibilidad en un instante y no garantiza disponibilidad futura.
-
-## Repositorio y entrega
-
-Repositorio del proyecto: [lolS7/Tarea_CC_SotoAlvarado](https://github.com/lolS7/Tarea_CC_SotoAlvarado). El equipo publica sus commits manualmente. La revisión del historial de contribuciones corresponde al repositorio.
-
-Incluir código, `model/model.pkl`, metadatos y evidencias. `.gitignore` excluye el entorno y CSV. Para la bonificación, entregar el enlace al repositorio con este README actualizado y conservar disponible la URL HTTPS indicada al comienzo.
