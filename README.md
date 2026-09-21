@@ -228,5 +228,3 @@ Estos cuerpos se obtuvieron de solicitudes HTTP al servicio público. La fecha, 
 ```bash
 python tests/verify_cloud.py
 ```
-
-La URL debe mantenerse activa y pública hasta la corrección. Verificar nuevamente los endpoints antes de entregar. La evidencia registra disponibilidad en un instante y no garantiza disponibilidad futura.
