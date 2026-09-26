@@ -120,7 +120,7 @@ El rendimiento discriminativo sigue siendo limitado. El dataset ya contiene canc
 
 La prueba inicia Uvicorn en un puerto libre de localhost y lo detiene al finalizar. Se verificaron 19 casos: límite de popularidad 50/51, umbral serializado, separación de géneros, salud, predicción idéntica al PKL, categorías nuevas, doce entradas inválidas y esquema OpenAPI. Evidencias: `docs/local_test_results.json` y `docs/server.log`. El entrenamiento comprueba paridad de probabilidades y etiquetas después de serializar. Se verificó también la carga del PKL en un proceso aislado, sin importar módulos del proyecto. `docs/reproducibility.json` registra la comparación con un segundo entrenamiento independiente.
 
-## Despliegue en la nube: bonificación
+## Despliegue en la nube
 
 Proveedor: **Google Cloud Run**, servicio `canciones-api`, proyecto `final-project-cc-2026`, región `southamerica-west1` (Santiago). Se despliega desde el código mediante Cloud Build y Buildpacks, que construyen el contenedor y lo almacenan en Artifact Registry. No se necesita un Dockerfile propio con este procedimiento. El servicio carga `model/model.pkl` al iniciar y no entrena ni necesita el CSV.
 
